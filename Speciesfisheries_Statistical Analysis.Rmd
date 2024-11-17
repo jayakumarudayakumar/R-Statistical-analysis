@@ -1,0 +1,342 @@
+---
+---
+
+```{r libraryData, echo=FALSE, message=FALSE, warning=FALSE}
+
+#libraries used in this project
+
+library(readxl)
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(magrittr)
+library(RColorBrewer)
+library(FSA)
+library(ggplot2)
+
+#Datasets used in this project
+
+speciesfisheries <- read_excel("Datasets/speciesfisheries.xlsx")
+
+```
+
+<P><BR>
+<CENTER>
+<FONT SIZE=4, COLOR="blue">
+<B>ALY6000 Introduction to Analytics</B>
+<BR>
+Instructor Name: Prof. Dee Chiluiza, PhD
+<BR>
+<B>Northeastern University</B>
+<BR>
+Student: Jayakumar Moris Udayakumar
+<BR>
+Date:`r format(Sys.time()," %d %B, %Y")`
+<P>Executive Summary Report
+</FONT>
+</Center>
+
+<P><BR>
+<B>INTRODUCTION:</B><BR>
+In this executive summary report, the dataset "speciesfisheries" will be analyzed. The dataset comprises the information about 7 different fish species and its respective length and weight. It has totally 505 observations. By analyzing the dataset, this report would present basic descriptive statistics, Average length and weight, variable species' probability and frequencies and cumulative probabilities. In a graphical presentation, pie chart and bar plot displayed for cumulative probabilities. To support the analysis and for the guidance, references taken from book written by Bhuman, A (2018), and RPub blog written by Prof. Chiliuza, D, (2023).
+
+
+<P><BR>
+<B>ANALYSIS SECTION</B>
+
+<P><BR>
+<B>Task 1: </B>
+<P>
+<B> Task 1A: </B>
+<P>
+<B>Description: </B> Using code summary obtaining information about the whole "speciesfisheries" dataset and presenting the same using kable ().
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+#Using summary function to obtain info from dataset "speciesfisheries"
+speciesfisheriessummary <- summary(speciesfisheries)
+
+#using kable function to present the table
+kable(speciesfisheriessummary, main = "speciesfisheries dataset", align = "c", digits = 2, format = "html")%>%
+  kable_styling(bootstrap_options = "basic", full_width = NULL, stripe_color = "blue", table.envir = "table", protect_latex = TRUE)
+
+```
+<P><BR>
+<B> Observation: </B> The summary shows descriptive statistics of each variable in the dataset. And for the categorical variables such as species, it shows the length, class and mode; also the other categorical variable "scale" denotes the number of datavalues "True" as 311 and "False" as 194. For the variable "length", min length of one of the species is 30.47, max length of one of the species is 432.58, average is 160.52, and median length is 153.04. Similarly, descriptive statistics for weight of the species: Min. weight is 0.90 and max. weight is 1071.88, median weight is 60.23 and average weight is 129.31. These are basic observations that are visible from the summary function. It is quick and informative.
+
+
+<BR>
+
+<P><BR>
+<B> Task 1B </B>
+<P>
+<B>Description: </B> Applying glimpse function to get information
+
+```{r task1B}
+
+#applying glimpse function
+glimpse(speciesfisheries)
+
+```
+<P><BR>
+<B> Observation: </B> From the glimpse output, we able to recognize the pattern of the dataset. Aside, the format of actual dataset has transposed as column names writted down the page and it is showing the first few values of each variable. For instance, 'netID' variable has values in each rows as "5, 16, 16, etc." consecutively. Also, it denotes number of rows as 505 (total observations) and available columns 6 in the dataset.
+
+<BR>
+
+<P><BR>
+<B> Task 1C </B><BR>
+<P><BR>
+<B>Comparison of the Task 1A and 1B results:</B><BR>
+
+While comparing the task A and B, it resembles like a comparison of descriptive statistics of the dataset and the glimpse of the raw data. The number of rows and columns are accurate and matches with each other. As glimpse() shows just the few details of the dataset, comparison of statistical data through outputs of these tasks is hard. However, we can recognize the pattern of the dataset through glimpse().
+
+<BR>
+<P><BR>
+<B> Task 2 </B><BR>
+<B> Description: </B> Using Inline R codes to present the number of columns and row in the dataset
+<BR>
+```{r task 2}
+
+#To calculate the number of rows and columns, creating two objects
+speciesfisheriescol <- ncol(speciesfisheries)
+speciesfisheriesrow <- nrow(speciesfisheries)
+
+```
+
+How many variables (columns) does the data set contains? </BR>
+Columns = `r speciesfisheriescol` </BR>
+How many observations (rows) does the data set contains? </BR>
+Rows = `r speciesfisheriesrow`</BR>
+
+<BR>
+<P><B> Observation: </B>  From this task, I was able to observe that inline R code is helpful to show actual value of the analysis while writing a report and able to reflect the changes if occurred.
+
+<BR>
+
+<BR>
+<P>
+<B> Task 3 </B><BR>
+<B> Description: </B> Selecting few variables (columns) to perform data analysis.
+
+```{r data analysis species}
+
+#isolating variables species, length, weight and then using headtail code to present first 5 and last 5 records of the selected variables
+
+speciesfisheries %>%
+  select(species, length, weight)%>%
+  headtail(n=5)%>%
+  kable(align = "c", digits = 2)%>%
+  kable_styling(bootstrap_options = "basic", full_width = NULL, stripe_color = "grey", table.envir = "table", protect_latex = TRUE)
+
+```
+<BR>
+<P>
+<B> Observation: </B> From the above table, it is easier to observe that we have pulled specific variables such as species, length, and weight from the dataset "speciesfisheries" and presented first 5 and last 5 records of the same using "headtail" code. Output is accurate when compared to raw data. On an average, Black Crappie species' length and weight is higher than the Yellow Perch. However, Yellow Perch species has ability to grow longer and can weigh heavy as one of the observation shows its length 223,26 and weight 114.20.
+
+
+<BR>
+<P>
+<B> Task 4 </B>
+<BR>
+<P><B>Description: </B> Evaluating descriptive statistics for the variables "length" and "weight"
+
+```{r task 4}
+
+# descriptive statistics of variables length and weight
+
+meanlength <- mean(speciesfisheries$length)
+meanweight <- mean(speciesfisheries$weight)
+medianlength <- median(speciesfisheries$length)
+medianweight <- median(speciesfisheries$weight)
+sdlength <- sd(speciesfisheries$length)
+sdweight <- sd(speciesfisheries$weight)
+
+# create vectors for the data, column names, and row names
+
+col_names = c("length", "weight")
+row_names = c("Mean", "Median", "SD")
+speciesfisheriesvector = matrix(c(meanlength, meanweight, medianlength, medianweight, sdlength, sdweight), nrow = 3, byrow = TRUE)
+
+# creating matrix
+
+speciesfisheriestable = matrix(speciesfisheriesvector, ncol = 2, dimnames = list(row_names,col_names))
+
+# using kable() to present the table
+kable(speciesfisheriestable, align = "c", digits = 2, format = "html")%>%
+  kable_styling(bootstrap_options = "basic", full_width = NULL, stripe_color = "black", table.envir = "table", protect_latex = TRUE)
+
+```
+<BR>
+<P>
+<B> Observation: </B> From the above task, we able to observe that descriptive statistics such as mean, median and SD of variables "length" and "weight" derived and presented. For instance, variable "length" has average of 160.52 whereas median is 153.04; therefore, the mean is higher than the median with the difference of 7 (approx).
+
+<BR>
+<BR>
+<P>
+<B> Task 5 </B>
+<BR>
+<B> Description: </B> Inorder to select individual categories from categorical variable, applying filter function
+
+```{r task 5}
+
+# filtering individual categories of the categorical variable "Species" and finding mean for the variable length and weight, respectively
+
+blackc = speciesfisheries %>%
+  filter(species=="Black Crappie")
+    
+meanlengthbc = mean(blackc$length)
+meanweightbc = mean(blackc$weight)
+
+Blueg = speciesfisheries %>%
+  filter(species=="Bluegill")
+
+meanlengthbg = mean(Blueg$length)
+meanweightbg = mean(Blueg$weight)  
+
+Bluntnosem = speciesfisheries %>%
+  filter(species=="Bluntnose Minnow")
+
+meanlengthbm = mean(Bluntnosem$length)  
+meanweightbm = mean(Bluntnosem$weight)
+
+Iowa = speciesfisheries %>%
+  filter(species=="Iowa Darter")
+
+meanlengthiw = mean(Iowa$length)
+meanweightiw = mean(Iowa$weight)
+
+Largemouth = speciesfisheries %>%
+  filter(species=="Largemouth Bass")
+
+meanlengthlb = mean(Largemouth$length)
+meanweightlb = mean(Largemouth$weight)
+
+Pumpkin = speciesfisheries %>%
+  filter(species=="Pumpkinseed")
+
+meanlengthps = mean(Pumpkin$length)
+meanweightps = mean(Pumpkin$weight)
+
+Yellowperch = speciesfisheries %>%
+  filter(species=="Yellow Perch")
+
+meanlengthyp = mean(Yellowperch$length)  
+meanweightyp = mean(Yellowperch$weight)
+
+# create vectors for the data, column names, and row names
+
+colnamesspecies = c("Avg length", "Avg weight")
+rownamesspecies = c("Black Crappie", "Bluegill", "Bluntnose Minnow", "Iowa Darter", "Largemouth Bass", "Pumpkinseed", "Yellow Perch")
+sevenspeciesvector = matrix(c(meanlengthbc, meanweightbc, meanlengthbg, meanweightbg, meanlengthbm, meanweightbm, meanlengthiw, meanweightiw, meanlengthlb, meanweightlb, meanlengthps, meanweightps, meanlengthyp, meanweightyp), nrow = 7, byrow = TRUE)
+
+# creating matrix from the vector
+sevenspeciestable = matrix(sevenspeciesvector, ncol = 2, dimnames = list(rownamesspecies,colnamesspecies))
+
+# using kable () to present the table
+kable(sevenspeciestable, digits = 2, align = "c")%>%
+  kable_styling(bootstrap_options = "basic", full_width = NULL, stripe_color = "brown", table.envir = "table", protect_latex = TRUE)
+
+
+```
+<BR>
+<P>
+<B> Observation: </B> From the above task and its result, we able to observe that the average length and weight of the individual categories of the categorical variable "Species" found. The species "Largemouth Bass" has the highest average length of 299.28, whereas species "Iowa Darter" has lowest average length of 49.43. On the other hand, Black Crappie seems to be the heaviest species that weighs 360.35 and the species "Iowa Darter" weighs light at 1.87.
+
+
+<BR>
+<P>
+<B> Task 6 </B>
+<BR>
+<B>Description: </B> Creating a table to present the frequencies, cumulative frequencies, probability, and cumulative probability of variable species.
+
+Reference: Bluman, G (2018)
+
+```{r task 6}
+
+#Creating a name for the table
+speciestable <- table(speciesfisheries$species)
+
+#transposing the table
+speciestabletp <- data.frame(t(speciestable))
+
+#renaming the column
+ speciestabletp <- speciestabletp %>% rename(Frequency = Freq)
+ speciestabletp <- speciestabletp %>% rename(speciesName = Var2)
+
+#using mutate function to create new variables for cumulative frequencies, probabilities, and cumulative probability of variable species
+
+speciestabletp <- speciestabletp %>%
+  mutate(
+    Cumulativefreq = cumsum(Frequency),
+    Probability = Frequency / sum(Frequency),
+    CumulativeProbability = cumsum(Probability)
+  )
+
+speciestabletp <- subset(speciestabletp, speciestabletp$Var1 == 'A', select = -c(Var1))
+
+# using kable() to present the table
+
+kable(speciestabletp, align = "c", digits = 2)%>%
+  kable_styling(bootstrap_options = "basic", full_width = NULL, stripe_color = "green", table.envir = "table", protect_latex = TRUE)
+    
+```
+<BR>
+<P>
+<B> Observation: </B> Based on the analysis in the task 6, we able to evaluate the variable species' individual categorical variables' frequencies, cumulative frequencies, probabilities, and cumulative probabilities. This analysis is highly beneficial that we able to answer questions such as probability of occurring Pumpkinseed is 0.03 (lowest), whereas the probability of occurring Bluegill is 0.41 (highest). Similarly, frequencies of Pumpkinseed and Bluegill stand lowest and the highest consecutively.
+
+
+
+<BR>
+<P>
+<B> Task 7 </B>
+<BR>
+<B> Description: </B> Presenting pie chart to display probability, and  bar plot to display cumulative probability
+<BR>
+
+```{r task 7}
+
+par(mfrow=c(1,2))
+
+# Creating pie chart of probability data
+ggplot(speciestabletp, aes(x = "", y = Probability, fill = speciesName)) +  geom_bar(stat = "identity", width = 0.5, color = "white") +
+  coord_polar("y", start=0) +
+  labs(fill = "Species Name") +
+  ggtitle("Pie Chart - Probability of Species and its categories") +
+  theme(legend.position = "bottom")+
+  theme_minimal()
+
+
+# Create bar plot of cumulative probability data
+ggplot(speciestabletp, aes(x = speciesName, y = CumulativeProbability)) +
+  geom_bar(stat = "identity", fill = "orange") +
+  ggtitle("Bar Plot - Cumulative Probability of categorical variable Species") +
+  xlab("Species Name") +
+  ylab("Cumulative Probability") +
+  theme_minimal()
+
+```
+<P>
+<B> Observation: </B> <BR>
+From the above graphical presentation, we able to understand that there are variations in the values of probabilities and cumulative probabilities of the each categorical variable. For instance, "Yellow Pirch" has the highest cumulative probability in the bar plot whereas its probability value in the pie chart is not the highest.
+
+
+<P>
+<B> Conclusion: </B> <BR>
+In this executive summary report, we have analyzed the descriptive statistics of the individual categories of the categorical variable and presented the same in the form of table and graphs. It is easier to predict the frequencies, probabilities, and cumulative probabilities of the specific categorical value.
+<BR>
+<P>
+<B> Learnings: </B> <BR>
+I have learnt how to use inline R code and to evaluate the probabilities and cumulative probabilities of the dataset. And also, how to use ggplot
+to present the graphs.
+<BR>
+<P>
+<B> References: </B> <BR>
+1. Prof. Chiliuza, D, (2023), URL: https://rpubs.com/Dee_Chiluiza
+<BR>
+2. Bluman, A (2018), Elementary Statistics: a step by step approach. In Bluman, A, Frequency distribution and Graphs, (pp. 47-51)
+
+<BR>
+<B>Appendix:</B><BR>
+An R Markdown file has been attached to this report. The name of the file is "M3Project_Rmarkdown.rmd"
