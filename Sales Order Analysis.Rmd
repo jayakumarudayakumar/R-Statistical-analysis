@@ -1,0 +1,309 @@
+---
+---
+
+```{r libraryData, message=FALSE, warning=FALSE}
+
+#Utilizing following libraries in this report
+
+library(knitr)
+library(readxl)
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+library(kableExtra)
+library(FSA)
+library(RColorBrewer)
+library(tidyverse)
+library(readr)
+
+
+#presenting the following dataset
+
+salesordersummary <- read_excel("Datasets/salesordersummary.xlsx")
+
+```
+
+<P><BR>
+<CENTER>
+<FONT SIZE=4, COLOR="blue">
+<B>NORTHEASTERN UNIVERSITY</B>
+<BR>
+<B>ALY6000 INTRODUCTION TO ANALYTICS</B>
+<BR>
+<B>FINAL PROJECT REPORT</B>
+<BR>
+Instructor: Prof. Diana Chiluiza, PhD
+<BR>
+Student: Jayakumar Moris Udayakumar
+<BR>
+Date:`r format(Sys.time()," %d %B, %Y")`
+<P>
+</FONT>
+</Center>
+
+<P><BR>
+<B>i. INTRODUCTION:</B><BR>
+
+The global consumer market expansion is at a large-scale with rapid growth of technology advancements and increase in working class population among the developing countries. According to PwC Global Consumer Insights Pulse Survey 2023, "Consumers seek friction-less experiences in a world of disruptions". 
+
+Although consumer market has been facing hardship after COVID-19 pandemic, it is reviving back to pre-COVID situation as people started showing interest in purchases yet being cautious in savings at some extent. Global consumer market can be differentiated between pre-COVID-19 and post-COVID-19 since the revolution of e-Commerce have made a great impact in the people and the economy. Some of the major consumer markets in the world are, China, USA, and India (statista.com, 2023).
+
+<B>i. a) Dataset - Sales Order Summary:</B><BR>
+
+In this report, we will analyze the sales order summary dataset that comprises the information about the consumer market sales in several countries in the regions like Africa, Asia Pacific, Europe, LATAM, and USCA. The products sold are categorized into three main categories such as, Furniture, Office supplies, and Technology.
+
+The dataset contains fields that can be differentiated by different types of data for analysis:
+Categorical Nominal - City, State, Region, Market, Department, Division
+Categorical Ordinal - ProductID, Order Priority, ShipMode
+Quantitative discrete - Quantity, Returns
+Quantitative continuous - Product Price, Quantity, Shipping cost, Loss per Return
+
+We can analyze the overall sales, sales in each market, consumer insights of each market, loss vs sales, shipping cost variation w.r.t markets.
+
+<P>
+<B>i. b) Descriptive Statistics:</B><BR>
+Descriptive statistics is one form of statistics where it involves steps such as collecting, orgnaizing, summarizing and presenting the data in the most meaningful format for easy understanding. The results will be displayed in the form of tables, charts, graphs, etc. For instance, any government census reports about national population would use descriptive statistics (Bluman, 2018).
+
+<P>
+<B>i. c) Inferential Statistics:</B><BR>
+Inferential statistics, on the other hand and the other component of statistics, where it involves generalizing results to population from collected samples, performing hypothesis tests and estimations, determining relationships between variables, and make predictions.
+
+<P><BR>
+<B>i. d) R Script versus R Markdown:</B><BR>
+
+<B>R Script:</B> R script is the platform in RStudio where we can run codes and see the output in console. It is possible to save our RScript codes in ".R" file, however the saved R file cannot be produced in different formats. <BR>
+<B>R Markdown:</B> In the R Markdown file, we can archive all our work and save them in different format such as .Rmd, html, pdf, and word. It has the ability to save all kind information from R Markdown file such as text, codes, graphs, tables, etc.
+
+<P><BR>
+<B>ii. ANALYSIS SECTION:</B><BR>
+
+<B>Task 1:</B><BR>
+
+<B>Description:</B> In this section, presenting basic descriptive statistics of the given dataset "sales order summary" and market specific consumer sales.<BR>
+
+```{r descriptive statistics}
+
+# manipulating descriptive statistical analysis for shipping cost of each sales
+mean_shipcost <- mean(salesordersummary$Shipping_Cost_Each)
+median_shipcost <- median(salesordersummary$Shipping_Cost_Each)
+sd_shipcost <- sd(salesordersummary$Shipping_Cost_Each)
+
+mean_prodcost <- mean(salesordersummary$Product_Price)
+median_prodcost <- median(salesordersummary$Product_Price)
+sd_prodcost <- sd(salesordersummary$Product_Price)
+
+# creating vectors with respect to column and rows to present data in a table
+
+colname <- c("Product cost", "Ship cost")
+rowname <- c("Mean", "Median", "Standard deviation")
+salesordersumvector <- matrix(c(mean_prodcost, mean_shipcost, median_prodcost, median_shipcost, sd_prodcost, sd_shipcost), nrow=3, byrow=TRUE)
+
+# using matrix for the table
+salessummarytable <- matrix(salesordersumvector, ncol = 2, dimnames = list(rowname,colname))
+
+# applying kable()
+kable(salessummarytable, digits = 2, align = "c", format = "html")%>%
+  kable_styling(stripe_color = "blue", bootstrap_options = "striped", table.envir = "table", protect_latex = TRUE)
+
+# sum shipping cost incurred in each market
+sumshipcost_market <- tapply(salesordersummary$Shipping_Cost_Each, salesordersummary$Market, sum)
+
+# presenting bar graph of sum of shipping cost in each market
+
+par(mai=c(1.8,1.8,2,2),mar=c(4.5,4,2,1))
+
+sumshipcost_market <- tapply(salesordersummary$Shipping_Cost_Each, salesordersummary$Market, sum)
+
+sumshipcostpermarket_bar <- barplot(sumshipcost_market, main = "Sum of shipping cost per product in the markets", col = brewer.pal(8,"Blues"), las = 1, xlab = "Markets", ylab = "Shipping cost", ylim = c(0,max(sumshipcost_market)*1.25))
+
+text(x = sumshipcostpermarket_bar, y = sumshipcost_market,
+     labels = round(sumshipcost_market, 2), pos = 3, cex = 0.7)
+
+# presenting pie chart of avg shipping cost per product in each market
+
+sumshipcostpermarket_pie <- pie(sumshipcost_market, main = "Sum of shipping cost per product in the markets", col = brewer.pal(8,"Pastel1"), las = 1, xlab = "Market", ylab = "Ship cost per product", ylim = c(0,max(sumshipcost_market)*1.25))
+
+
+```
+<BR><B>Observation:</B>
+From the above presentation, we able to understand that the sum of shipping costs in each market is visualized. Asia Pacific market stands top with the total shipping value of 3931.4 and consecutively, Europe market with the total shipping cost of 3607.02.
+
+<B>Task 2:</B><BR>
+
+<B>Description:</B> Presenting boxplot chart and histogram chart to display the distribution of shipment costs incurred in the sales<BR>
+
+```{r box plot and histogram, warning=FALSE, message=FALSE}
+
+par(par(mfcol=c(2,1)), mai=c(2,2,2,2),mar=c(4.5,4,2,1))
+
+# Calculate mean and median
+mean_value <- mean(salesordersummary$Shipping_Cost_Each)
+median_value <- median(salesordersummary$Shipping_Cost_Each)
+hist(salesordersummary$Shipping_Cost_Each, main = "Histogram of shipping cost per product - distribution", col = brewer.pal(9,"Greens"), xlab = "Shipping cost per product", ylim = c(0,max(salesordersummary$Shipping_Cost_Each)*6))
+
+
+# Signifying average to the chart
+abline(v = mean_value, col = "red", lwd = 2)
+text(y = max(salesordersummary$Shipping_Cost_Each)*5.5, x = mean_value,
+     paste("Mean:", round(mean_value, 2)), col = "red")
+
+# Signifying median to the chart
+abline(v = median_value, col = "blue", lwd = 2)
+text(y = max(salesordersummary$Shipping_Cost_Each)*5, x = median_value,
+     paste("Median:", round(median_value, 2)), col = "blue")
+
+# presenting boxplot of sales order summart with respect to shipping cost
+boxplot(salesordersummary$Shipping_Cost_Each, main = "Box plot of shipping cost per product - distribution", col = brewer.pal(7,"YlOrRd"), las = 1, horizontal = T, cex = 0.55, cex.main = 0.7, cex.lab = 0.7, cex.axis = 0.6, ylim = c(0,max(salesordersummary$Shipping_Cost_Each)*1.05))
+
+
+# denoting mean in the bar chart
+abline(col = "green", lwd = 2,v = mean_value)
+text(y = max(salesordersummary$Shipping_Cost_Each)*5.5, x = mean_value,
+     paste("Mean:", round(mean_value, 2)), col = "red")
+
+# denoting median in the bar chart
+abline(col = "blue", lwd = 2, v = median_value)
+text(y = max(salesordersummary$Shipping_Cost_Each)*5, x = median_value, 
+     paste("Median:", round(median_value, 2)), col = "blue")
+
+```
+<B>Observation:</B>
+Bar chart and box plot presented with respect to the shipping costs in the market and its distribution across the plot. Median stands at 8.59 and Mean stands at 14.32. While reviewing box plot, there are several outliers, refers to the shipping costs ranges between 45 to 60.
+
+
+<B>Task 3:</B><BR>
+<B>Description:</B>
+Presenting box chart with respect to shipping cost and markets. In addition, will figure the market that has highest shipping cost and the market holds lowest shipping cost.<BR>
+
+```{r}
+
+# boxplot to review Shipping cost w.r.t markets
+boxplot(salesordersummary$Shipping_Cost_Each ~ salesordersummary$Market, data = salesordersummary, main="Boxplot of market and shipment cost", col = brewer.pal(7,"Paired"), xlab = "Markets", ylab = "Shipping cost")
+
+# analyzing the shipping costs range
+highshipcostperprod <- names(which.max(tapply(salesordersummary$Shipping_Cost_Each, salesordersummary$Market, max)))
+lowshipcostperprod <- names(which.min(tapply(salesordersummary$Shipping_Cost_Each, salesordersummary$Market, max)))
+
+```
+
+Market that has high shipping cost is `r highshipcostperprod` <BR>
+Market that has low shipping cost is `r lowshipcostperprod`<BR>
+
+<B>Task 4:</B><BR>
+<B>Description:</B>
+Showing bar chart applying tapply function to determine average shipping cost in each market and will compare the same with the box chart interpreted in task 3.<BR>
+
+```{r meanshipcost}
+
+#using tapply function
+meanshipcost <- tapply(salesordersummary$Shipping_Cost_Each, salesordersummary$Market, mean)
+
+#forming bar chart and assigning it to the object
+barplotofshipcostmkt <- barplot(meanshipcost, main = "Average ship cost per product in the markets", col = brewer.pal(8,"Blues"), las = 1, xlab = "Markets", ylab = "Shipping cost",   ylim = c(0,max(meanshipcost)*1.25), cex.axis = 0.6, cex = 0.41, cex.lab = 0.65,cex.main = 0.85)
+
+text(x = barplotofshipcostmkt, y = meanshipcost + 0.05 * max(meanshipcost),
+     labels = round(meanshipcost, 2), cex = 0.7, pos = 3)
+
+```
+<B>Observation:</B>
+While reviewing the above bar chart and comparing the same with the box plot presented in task 3, we able to observe that Africa market has the highest average shipping cost compared to all other markets
+
+
+<B>Task 5:</B><BR>
+<B>Description:</B>
+This is the comparison between shipping cost and shipping method in all the markets and sales.<BR>
+
+```{r}
+
+#assigning objects by pulling the ship method and ship cost data from the dataset
+
+modeofship <-  salesordersummary$ShipMode
+shipcost <- salesordersummary$Shipping_Cost_Each
+
+# forming box plot to understand the comparison
+boxplot(shipcost~modeofship,
+        main="Representation of Ship mode Vs Ship cost",
+        ylab="Ship Cost",
+        xlab="Ship Mode",
+        col=brewer.pal(8,"Spectral"))
+
+```
+<B>Observation:</B>
+While reviewing the outcome in the box plot, we able to observe that the ship cost of the ship method "same day delivery" is at the highest and consecutively, first class, second class, and standard class.
+
+
+<B>Task 6:</B><BR>
+<B>Description:</B>
+Adding a new column in the dataset and renaming it into new dataset.<BR>
+
+```{r include=FALSE, message=FALSE, warning=FALSE}
+
+salesordersummary1 <- salesordersummary %>%
+  mutate(Total_salesvalue = Quantity * Product_Price)
+
+glimpse(salesordersummary1[1, ])
+
+```
+
+<B>Task 7:</B><BR>
+<B>Description:</B>
+As new dataset created in the task 6 by adding new column for Total sales, in this step, we will be able to figure out the market that holds highest sales value.<BR>
+
+```{r}
+
+salesordersummary1 %>%
+  group_by(Market) %>%
+  summarise(Total_salesvalue = sum(Total_salesvalue)) %>%
+  filter(Total_salesvalue == max(Total_salesvalue)) %>%
+  kable(align = "c", digits = 2)%>%
+  kable_styling(full_width = NULL, stripe_color = "brown", table.envir = "table", protect_latex = TRUE, bootstrap_options = c("striped", "hover"))
+
+```
+<B>Observation:</B>
+In market, Asia Pacific total sales is the highest with `r 24704625`.
+
+
+<B>Task 8:</B><BR>
+<B>Description:</B>
+Random question to analyze the dataset using the combination of all three codes: mutate(), filter(), group_by().<BR>
+
+<B>Question: </B>
+In the African market, which segment has highest total loss due to returns in the furniture department. Posting this question to understand the loss incurred in African consumer market due to returns with respect to the furniture department.
+Country - Africa
+Department - Furniture<BR>
+
+```{r}
+
+# creating new object by adding additional column to the data set as "Total_lossreturns"
+
+salesordersummary2 <- salesordersummary %>%
+  mutate(Total_lossreturns = Loss_Per_Return * Returns)
+
+# forming the table to figure out the segment in the african market that incurs high loss due to returns for furniture department
+
+salesordersummary2 %>%
+  filter(Market == "Africa", Department == "Furniture") %>%
+  group_by(Segment) %>%
+  summarise(Total_lossreturns = sum(Total_lossreturns)) %>%
+  filter(Total_lossreturns == max(Total_lossreturns)) %>%
+  kable(align = "c", digits = 2)%>%
+  kable_styling(full_width = NULL, stripe_color = "blue", table.envir = "table", protect_latex = TRUE, bootstrap_options = c("striped", "hover"))
+
+```
+<B>Observation:</B>
+Based on the question, I did run r codes using mutate(), filter(), and group_by(). In the African market, consumer segment has highest total loss due to returns in the furniture department.<BR>
+
+<B>Conclusion:</B>
+In a summary, dataset about sales order summary that comprises different types of data would help us to analyze the shipping cost, return losses, product prices, consumer market strengths acroos the world, consumer interests on segments or departments, etc. It is great to observe that "Same day" delivery ship method is used a lot and it gives rise of incurring highest shipping costs. On the other hand, Asia Pacific market has highest sales compared to other markets.<BR>
+
+<B>References:</B>
+1.	Statista, 2023, Consumer Market Insights, URL: https://www.statista.com/outlook/consumer-markets#marketSegments
+2.	PwC, 2023, February 2023 Global Consumer Insights Pulse Survey, URL: https://www.pwc.com/gx/en/industries/consumer-markets/consumer-insights-survey.html
+3.	Bluman, A (2018), Elementary Statistics: a step by step approach. In Bluman, A., Descriptive and Inferential Statistics, (pp. 3-4)
+<BR>
+<BR>
+<P>
+<B>Acknowledgement:</B>
+I would like to thank my Prof. Diana Chiluiza, PhD, who helped to understand the fundamentals of analytics with great and interactive class sessions. 
+<B>Appendix:</B>
+An R Markdown file has been attached to this report. The name of the file is “FinalProject_Rmarkdown.rmd”
